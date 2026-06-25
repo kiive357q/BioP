@@ -33,9 +33,10 @@ onnx_exports/
 edge_deployment/target/
 
 # Data (large raw datasets and preprocessed outputs)
-data/analysis_output/
-*.pt
-*.pth
+data/
+!data/*.py
+!data/*.md
+!data/*.json
 
 # Secrets / Env
 .env
