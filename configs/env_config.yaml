@@ -1,0 +1,63 @@
+# 环境配置文件
+# BSM1 基准测试环境
+
+environment:
+  name: "BSM1_Differentiable"
+  version: "2.0"
+  
+reactors:
+  anoxic:
+    id: "anoxic_1"
+    volume_m3: 1500.0
+    initial_state:
+      S_S: 58.24
+      S_NO: 0.0
+      X_BH: 45.96
+      temperature: 15.0
+      pH: 7.2
+      
+  aerobic:
+    - id: "aerobic_1"
+      volume_m3: 3000.0
+      initial_state:
+        S_O: 2.0
+        S_NH: 4.0
+        X_BA: 0.01
+        
+    - id: "aerobic_2"
+      volume_m3: 3000.0
+      initial_state:
+        S_O: 2.0
+        S_NH: 2.0
+        
+settling:
+  secondary settler:
+    area_m2: 1500.0
+    volume_m3: 6000.0
+    
+asm1_parameters:
+  mu_max_H: 4.0
+  mu_max_A: 0.5
+  K_S: 20.0
+  K_O: 0.2
+  K_NH: 0.05
+  K_NO: 0.5
+  Y_H: 0.67
+  Y_A: 0.24
+  b_H: 0.3
+  b_A: 0.05
+  k_la: 84.0
+  k_h: 3.0
+  K_X: 0.1
+
+simulation:
+  dt_min: 0.5
+  max_simulation_days: 7
+  sampling_interval_min: 2
+  
+influent_characteristics:
+  flow_m3_d: 18446.4
+  S_S_mg_L: 58.24
+  X_S_mg_L: 63.04
+  S_NH_mg_L: 4.76
+  TP_mg_L: 3.5

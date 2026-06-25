@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Project generated artifacts
+logs/
+logs_full/
+checkpoints/
+checkpoints_full/
+test_results/
+onnx_exports/
+edge_deployment/target/
+
+# Data (large raw datasets and preprocessed outputs)
+data/analysis_output/
+*.pt
+*.pth
+
+# Secrets / Env
+.env
+*.local
+*.pem
+*.key

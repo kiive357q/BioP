@@ -1,0 +1,174 @@
+{
+  "config_version": "2.0",
+  "device_info": {
+    "name": "BioP_Edge_Controller_V2",
+    "type": "Industrial_Gateway",
+    "manufacturer": "BioP WorldModel Team"
+  },
+  "registers": {
+    "sensors": [
+      {
+        "address": "ns=2;i=1001",
+        "name": "INF_FLOW",
+        "type": "float",
+        "unit": "m3_d",
+        "scaling": 1.0,
+        "offset": 0.0,
+        "alarm_low": 10000.0,
+        "alarm_high": 25000.0
+      },
+      {
+        "address": "ns=2;i=1002",
+        "name": "EFF_TP",
+        "type": "float",
+        "unit": "mg_L",
+        "scaling": 1.0,
+        "offset": 0.0,
+        "alarm_high": 5.0,
+        "safety_max": 10.0
+      },
+      {
+        "address": "ns=2;i=1003",
+        "name": "EFF_TN",
+        "type": "float",
+        "unit": "mg_L",
+        "scaling": 1.0,
+        "offset": 0.0,
+        "alarm_high": 15.0
+      },
+      {
+        "address": "ns=2;i=1004",
+        "name": "DO_A1",
+        "type": "float",
+        "unit": "mg_L",
+        "scaling": 1.0,
+        "offset": 0.0,
+        "alarm_low": 0.5,
+        "alarm_high": 8.0,
+        "safety_min": 0.2,
+        "safety_max": 10.0
+      },
+      {
+        "address": "ns=2;i=1005",
+        "name": "DO_A2",
+        "type": "float",
+        "unit": "mg_L",
+        "scaling": 1.0,
+        "offset": 0.0,
+        "alarm_low": 0.5,
+        "alarm_high": 8.0
+      },
+      {
+        "address": "ns=2;i=1006",
+        "name": "MLSS",
+        "type": "float",
+        "unit": "mg_L",
+        "scaling": 1.0,
+        "offset": 0.0,
+        "alarm_low": 1500.0,
+        "alarm_high": 6000.0
+      },
+      {
+        "address": "ns=2;i=1007",
+        "name": "COD_INF",
+        "type": "float",
+        "unit": "mg_L",
+        "scaling": 1.0,
+        "offset": 0.0,
+        "alarm_high": 800.0
+      }
+    ],
+    "actuators": [
+      {
+        "address": "ns=2;i=2001",
+        "name": "AIR_BLOWER_1",
+        "type": "float",
+        "unit": "Nm3_h",
+        "min_value": 0.0,
+        "max_value": 10000.0,
+        "default_value": 5000.0,
+        "ramp_rate": 500.0,
+        "safety_min": 500.0,
+        "safety_max": 8500.0
+      },
+      {
+        "address": "ns=2;i=2002",
+        "name": "AIR_BLOWER_2",
+        "type": "float",
+        "unit": "Nm3_h",
+        "min_value": 0.0,
+        "max_value": 10000.0,
+        "default_value": 5000.0,
+        "ramp_rate": 500.0,
+        "safety_min": 500.0,
+        "safety_max": 8500.0
+      },
+      {
+        "address": "ns=2;i=2003",
+        "name": "Dosing_Pump_Phosphorus",
+        "type": "float",
+        "unit": "L_h",
+        "min_value": 0.0,
+        "max_value": 50.0,
+        "default_value": 0.0,
+        "safety_max": 40.0
+      },
+      {
+        "address": "ns=2;i=2004",
+        "name": "Waste_Sludge_Pump",
+        "type": "float",
+        "unit": "m3_d",
+        "min_value": 0.0,
+        "max_value": 500.0,
+        "default_value": 385.0,
+        "ramp_rate": 50.0
+      },
+      {
+        "address": "ns=2;i=2005",
+        "name": "RAS_Pump",
+        "type": "float",
+        "unit": "m3_d",
+        "min_value": 0.0,
+        "max_value": 1000.0,
+        "default_value": 385.0
+      }
+    ]
+  },
+  "safety_interlocks": [
+    {
+      "id": "IL_001",
+      "description": "DO 低于安全值时强制增加曝气",
+      "condition": "DO_A1 < 0.2 OR DO_A2 < 0.2",
+      "action": "SET AIR_BLOWER_1 = 8000; SET AIR_BLOWER_2 = 8000",
+      "priority": 1
+    },
+    {
+      "id": "IL_002",
+      "description": "TP 超标时增加化学除磷",
+      "condition": "EFF_TP > 8.0",
+      "action": "SET Dosing_Pump_Phosphorus = 35.0",
+      "priority": 2
+    },
+    {
+      "id": "IL_003",
+      "description": "进水流量异常时禁止加药",
+      "condition": "INF_FLOW < 5000",
+      "action": "SET Dosing_Pump_Phosphorus = 0.0",
+      "priority": 1
+    }
+  ],
+  "inference_config": {
+    "model_path": "onnx_exports/biop_worldmodel.onnx",
+    "input_shape": [1, 1440, 13],
+    "output_shape": [1, 4],
+    "batch_size": 1,
+    "warmup_iterations": 10,
+    "execution_provider": "CPU"
+  },
+  "logging": {
+    "level": "INFO",
+    "file_path": "logs/edge_controller.log",
+    "max_file_size_mb": 100,
+    "max_backup_files": 5
+  }
+}

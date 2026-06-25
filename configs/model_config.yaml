@@ -1,0 +1,64 @@
+# 模型配置文件
+# BioP Causal WorldModel V2.0
+
+model:
+  ncde:
+    state_dim: 13
+    hidden_dim: 256
+    solver: "dopri5"
+    atol: 1.0e-4
+    rtol: 1.0e-4
+    max_nfe: 10000
+    gradient_clipping:
+      enabled: true
+      max_norm: 1.0
+      
+  koopman:
+    latent_dim: 64
+    encoder_hidden_dim: 128
+    encoder_layers: 3
+    
+  sindy:
+    poly_order: 3
+    include_sin: true
+    include_cos: true
+    include_interactions: true
+    interaction_order: 2
+    threshold: 0.01
+    iterations: 10
+    
+training:
+  phase1:
+    epochs: 500
+    batch_size: 128
+    learning_rate: 0.001
+    optimizer: "adam"
+    scheduler:
+      type: "reduce_on_plateau"
+      factor: 0.5
+      patience: 10
+      
+  phase2:
+    epochs: 300
+    batch_size: 128
+    learning_rate: 0.0005
+    transfer_learning: true
+    
+  distillation:
+    temperature: 4.0
+    alpha: 0.3
+    compression_ratio: 0.25
+    
+pinn:
+  mass_conservation_weight: 1.0
+  dynamics_weight: 1.0
+  boundary_weight: 0.5
+  data_weight: 1.0
+  
+safety:
+  do_min_mg_L: 0.5
+  do_max_mg_L: 8.0
+  tp_max_mg_L: 10.0
+  tn_max_mg_L: 20.0
+  cbf_gamma: 1.0
+  qp_timeout_ms: 10

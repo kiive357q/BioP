@@ -1,0 +1,80 @@
+# 安全配置文件
+# BioP Causal WorldModel V2.0
+
+safety:
+  version: "2.0"
+  
+constraints:
+  dissolved_oxygen:
+    minimum_mg_L: 0.5
+    maximum_mg_L: 8.0
+    critical_minimum_mg_L: 0.2
+    alarm_response_sec: 5
+    cbf_gamma: 1.0
+    
+  total_phosphorus:
+    maximum_mg_L: 10.0
+    effluent_standard_mg_L: 1.0
+    critical_maximum_mg_L: 15.0
+    alarm_response_sec: 10
+    
+  total_nitrogen:
+    maximum_mg_L: 20.0
+    effluent_standard_mg_L: 10.0
+    
+  hydraulic:
+    minimum_hrt_hours: 6.0
+    recommended_hrt_hours: 12.0
+    maximum_flow_m3_d: 25000.0
+    
+  mlss:
+    minimum_mg_L: 1500
+    maximum_mg_L: 6000
+    target_mg_L: 3000
+    
+cbp:
+  enabled: true
+  safety_barrier_gain: 10.0
+  qp_solver: "osqp"
+  qp_timeout_ms: 10
+  
+hji:
+  enabled: false
+  grid_resolution: 101
+  time_horizon_s: 60.0
+  
+interlocks:
+  - id: "IL_DO_LOW"
+    condition: "DO < 0.2"
+    action: "EMERGENCY_AERATION"
+    priority: 1
+    
+  - id: "IL_TP_HIGH"
+    condition: "TP > 15.0"
+    action: "MAX_CHEMICAL_DOSING"
+    priority: 2
+    
+  - id: "IL_FLOW_LOW"
+    condition: "FLOW < 5000"
+    action: "BLOCK_DOSING"
+    priority: 1
+    
+monitoring:
+  health_check_interval_sec: 60
+  anomaly_detection:
+    enabled: true
+    method: "statistical"
+    threshold_std: 3.0
+    
+  gradient_monitoring:
+    enabled: true
+    max_gradient_norm: 10.0
+    
+emergency:
+  emergency_stop:
+    do_threshold_mg_L: 0.1
+    tp_threshold_mg_L: 20.0
+    
+  recovery_procedure:
+    timeout_sec: 300
+    manual_intervention_required: true

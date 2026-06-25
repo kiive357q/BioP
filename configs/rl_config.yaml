@@ -1,0 +1,76 @@
+# 强化学习配置文件
+# Lexicographic SAC + Hierarchical Actor-Critic
+
+rl:
+  algorithm: "LexicographicSAC"
+  version: "2.0"
+  
+agent:
+  state_dim: 13
+  action_dim: 4
+  hidden_dim: 256
+  
+  sac:
+    gamma: 0.99
+    tau: 0.005
+    alpha: 0.2
+    target_update_interval: 1
+    
+  lexicographic:
+    safety_threshold: 0.9
+    priority_weights:
+      safety: 10.0
+      quality: 1.0
+      energy: 0.5
+      
+  cvar:
+    alpha: 0.05
+    beta: 1.0
+    
+training:
+  total_timesteps: 1000000
+  batch_size: 256
+  buffer_size: 100000
+  
+  prioritized_replay:
+    enabled: true
+    alpha: 0.6
+    beta: 0.4
+    beta_increment: 1.0e-4
+    
+  exploration:
+    initial_epsilon: 1.0
+    final_epsilon: 0.05
+    epsilon_decay_steps: 50000
+    
+  checkpoint:
+    save_interval: 10000
+    
+reward:
+  weights:
+    effluent_quality: 0.4
+    energy_consumption: 0.3
+    sludge_production: 0.15
+    safety_penalty: 0.15
+    
+  components:
+    tp_target_mg_L: 1.0
+    tn_target_mg_L: 10.0
+    cod_target_mg_L: 100.0
+    
+    tp_penalty_scale: 10.0
+    do_low_penalty: 50.0
+    
+evaluation:
+  n_episodes: 10
+  deterministic: true
+  
+  safety_metrics:
+    - cbf_violation_rate
+    - do_constraint_satisfaction
+    - tp_standard_compliance
+    
+deployment:
+  inference_mode: "online"
+  replan_interval_sec: 120
+  action_smoothing: 0.2

@@ -1,0 +1,219 @@
+{
+  "digital_twin": {
+    "version": "2.0",
+    "name": "BioP_Causal_WorldModel_V2_DigitalTwin",
+    "description": "污水生化除磷数字孪生配置"
+  },
+  "reactors": [
+    {
+      "id": "anoxic_1",
+      "type": "anoxic",
+      "volume_m3": 1500.0,
+      "initial_state": {
+        "S_S": 58.24,
+        "S_NO": 0.0,
+        "X_BH": 45.96,
+        "temperature": 15.0,
+        "pH": 7.2
+      }
+    },
+    {
+      "id": "aerobic_1",
+      "type": "aerobic",
+      "volume_m3": 3000.0,
+      "initial_state": {
+        "S_O": 2.0,
+        "S_NH": 4.0,
+        "X_BA": 0.01,
+        "temperature": 15.0,
+        "pH": 7.0
+      }
+    },
+    {
+      "id": "aerobic_2",
+      "type": "aerobic",
+      "volume_m3": 3000.0,
+      "initial_state": {
+        "S_O": 2.0,
+        "S_NH": 2.0,
+        "X_BA": 0.01,
+        "temperature": 15.0,
+        "pH": 7.0
+      }
+    }
+  ],
+  "sensors": [
+    {
+      "id": "INF_FLOW",
+      "type": "flow_rate",
+      "unit": "m3_d",
+      "location": "influent",
+      "sampling_interval_sec": 120,
+      "normal_range": [15000, 22000]
+    },
+    {
+      "id": "EFF_TP",
+      "type": "concentration",
+      "unit": "mg_L",
+      "location": "effluent",
+      "sampling_interval_sec": 120,
+      "normal_range": [0.1, 2.0],
+      "alarm_threshold": 5.0
+    },
+    {
+      "id": "EFF_TN",
+      "type": "concentration",
+      "unit": "mg_L",
+      "location": "effluent",
+      "sampling_interval_sec": 120,
+      "normal_range": [5.0, 15.0],
+      "alarm_threshold": 20.0
+    },
+    {
+      "id": "DO_A1",
+      "type": "dissolved_oxygen",
+      "unit": "mg_L",
+      "location": "aerobic_1",
+      "sampling_interval_sec": 60,
+      "normal_range": [0.5, 4.0],
+      "safety_min": 0.5,
+      "safety_max": 8.0
+    },
+    {
+      "id": "DO_A2",
+      "type": "dissolved_oxygen",
+      "unit": "mg_L",
+      "location": "aerobic_2",
+      "sampling_interval_sec": 60,
+      "normal_range": [1.0, 4.0],
+      "safety_min": 0.5,
+      "safety_max": 8.0
+    },
+    {
+      "id": "MLSS",
+      "type": "concentration",
+      "unit": "mg_L",
+      "location": "aeration_tank",
+      "sampling_interval_sec": 300,
+      "normal_range": [2000, 4500]
+    },
+    {
+      "id": "COD_INF",
+      "type": "concentration",
+      "unit": "mg_L",
+      "location": "influent",
+      "sampling_interval_sec": 120,
+      "normal_range": [200, 600]
+    }
+  ],
+  "actuators": [
+    {
+      "id": "AIR_BLOWER_1",
+      "type": "air_flow",
+      "unit": "Nm3_h",
+      "location": "aerobic_1",
+      "control_range": [0, 10000],
+      "safety_range": [500, 8500],
+      "response_time_sec": 30
+    },
+    {
+      "id": "AIR_BLOWER_2",
+      "type": "air_flow",
+      "unit": "Nm3_h",
+      "location": "aerobic_2",
+      "control_range": [0, 10000],
+      "safety_range": [500, 8500],
+      "response_time_sec": 30
+    },
+    {
+      "id": "Dosing_Pump_Phosphorus",
+      "type": "chemical_dosing",
+      "unit": "L_h",
+      "chemical": "Alum_FeCl3",
+      "control_range": [0, 50],
+      "safety_max": 40,
+      "response_time_sec": 60
+    },
+    {
+      "id": "Waste_Sludge_Pump",
+      "type": "sludge_flow",
+      "unit": "m3_d",
+      "control_range": [0, 500],
+      "response_time_sec": 120
+    },
+    {
+      "id": "RAS_Pump",
+      "type": "sludge_flow",
+      "unit": "m3_d",
+      "control_range": [0, 1000],
+      "response_time_sec": 120
+    }
+  ],
+  "communication": {
+    "protocol": "OPC-UA",
+    "server_url": "opc.tcp://localhost:4840",
+    "security_mode": "SignAndEncrypt",
+    "security_policy": "Basic256Sha256",
+    "sample_timeout_ms": 5000
+  },
+  "data_processing": {
+    "outlier_detection": {
+      "enabled": true,
+      "method": "iqr",
+      "threshold": 3.0
+    },
+    "missing_value_handling": {
+      "method": "interpolation",
+      "max_gap_minutes": 30
+    },
+    "noise_filtering": {
+      "method": "kalman_filter",
+      "process_noise": 0.01,
+      "measurement_noise": 0.1
+    }
+  },
+  "safety_constraints": {
+    "dissolved_oxygen": {
+      "minimum_mg_L": 0.5,
+      "maximum_mg_L": 8.0,
+      "critical_minimum_mg_L": 0.2,
+      "alarm_response_sec": 5
+    },
+    "total_phosphorus": {
+      "maximum_mg_L": 10.0,
+      "effluent_standard_mg_L": 1.0,
+      "critical_maximum_mg_L": 15.0
+    },
+    "hydraulic_retention_time": {
+      "minimum_hours": 6.0,
+      "recommended_hours": 12.0
+    },
+    "mlss": {
+      "minimum_mg_L": 1500,
+      "maximum_mg_L": 6000
+    }
+  },
+  "model_parameters": {
+    "asm2d": {
+      "enabled": true,
+      "file": "models/asm2d_parameters.yaml"
+    },
+    "ncde": {
+      "enabled": true,
+      "checkpoint": "checkpoints/ncde_final.pt",
+      "hidden_dim": 256
+    },
+    "sindy": {
+      "enabled": true,
+      "library_order": 3,
+      "sparsity_threshold": 0.01
+    }
+  },
+  "inference": {
+    "device": "cuda",
+    "batch_size": 32,
+    "onnx_model": "onnx_exports/biop_worldmodel.onnx",
+    "prediction_horizon_min": 30,
+    "replanning_interval_sec": 120
+  }
+}
